@@ -1,0 +1,22 @@
+#cloud-config
+# https://cloudinit.readthedocs.io/en/latest/topics/modules.html
+
+preserve_hostname: false
+hostname: ${HOSTNAME}
+
+users:
+  - name: ${VM_USER}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    home: /home/${VM_USER}
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - ${SSH_KEY}
+
+  - name: ${ANSIBLE_USER}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    home: /home/${ANSIBLE_USER}
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - ${SSH_KEY}
+
+ssh_pwauth: True
