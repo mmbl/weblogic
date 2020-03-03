@@ -5,13 +5,6 @@ preserve_hostname: false
 hostname: ${HOSTNAME}
 
 users:
-  - name: ${VM_USER}
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    home: /home/${VM_USER}
-    shell: /bin/bash
-    ssh-authorized-keys:
-      - ${SSH_KEY}
-
   - name: ${ANSIBLE_USER}
     sudo: ALL=(ALL) NOPASSWD:ALL
     home: /home/${ANSIBLE_USER}

@@ -12,14 +12,23 @@ deploying an Oracle WebLogic Server application Two-cluster architecture and adm
 Terraform представляет мобой модульное решение, позволяющее использовать различные облачные решения <https://www.terraform.io/docs/providers/index.html>. </br>
 Для исользования Qemu виртуализации, требуется описать провайдер или использовать <https://github.com/dmacvicar/terraform-provider-libvirt>
 
-### Jolokia
+### Использование terraform
 
-<https://jolokia.org/index.html> Мониторинг WebLogic сервера
+- Определить переменные
+  - "ANSIBLE_USER" - имя пользователя
+  - "SSH_KEY_PATH" - публичный ключ
+  - "LIBVIRT_POOL_DIR" - каталог хранения VM
+  - "RH81_IMG_URL_64" - полный путь к файлу rhel-8.1-x86_64-kvm.
+    qcow2 или другому образу системы эксперименты с Oracle-linux и ubuntu проблем не выявили
+  - "COUNT_VM" количество однотипный виртуальных машин
+- в каталоге terraform выполнить команду terraform init, которая создаст каталог .terraform
+- развертывание инфраструктуры - команда terraform apply
+- удаление инфрастуктуры - команда terraform destroy
 
-### Start WebLogic Managed Server Commans Line
+#### Примечание
 
-<pre><code>
-cd $DOMAIN_HOME/bin
+Пользуйтесь приведённыи командами, так как при ручном удалении остаются артефакты, которые мешают повторному использованию кода. В частности невимый в менеджере виртуальных машин virsh net-list --all (weblogic_network inactive no yes) и видимый virsh pool-list (weblogic_env active yes).
+Вызывают ошибки:
 
-nohup ./startManagedWebLogic.sh [InstanceName] [t3 Admin URL] > $DOMAIN_HOME/servers/[InstanceName]/[InstanceName].out 2>&1 &
-</code></pre>
+- Error: Error defining libvirt network: virError(Code=9, Domain=19, Message='operation failed: network 'weblogic_network' already exists with uuid
+- Error: storage pool 'weblogic_env' already exists

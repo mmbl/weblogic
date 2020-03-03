@@ -51,6 +51,7 @@ resource "libvirt_network" "weblogic_network" {
 ################################################################################
 # RESOURCES
 ################################################################################
+
 data "template_file" "network_config" {
   template = file("${path.module}/network_config.yaml")
 }
@@ -61,10 +62,16 @@ resource "libvirt_volume" "rh_disk" {
   source = var.RH81_IMG_URL_64
   format = "qcow2"
 }
+
 #################################################################
 # VM
 # Будет создано 2 виртуальных машины (переменная count в описании) и отдельная сеть
 #################################################################
+
+variable "COUNT_VM" {
+  default = 2
+}
+
 data "template_file" "wls_user_data" {
   template = file("${path.module}/cloud_init.yaml")
   vars = {
@@ -87,7 +94,7 @@ resource "libvirt_volume" "wls_rh_disk" {
   name           = "wls_rh_disk_${count.index}"
   base_volume_id = libvirt_volume.rh_disk.id
   pool           = libvirt_pool.weblogic_env.name
-  count          = 2
+  count          = var.COUNT_VM
 }
 
 resource "libvirt_domain" "wls_rh_host" {
@@ -97,7 +104,7 @@ resource "libvirt_domain" "wls_rh_host" {
   autostart  = true
   qemu_agent = true
 
-  count = 2
+  count = var.COUNT_VM
 
   cloudinit = libvirt_cloudinit_disk.cloudinit.id
 
