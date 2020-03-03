@@ -6,3 +6,6 @@
 
 # TODO: следует приложить усилия для сохранения *.tfstate файла в процессе эксплуатации
 # за подробностями на сюда -> https://www.hashicorp.com/products/terraform
+
+# VSCode
+.vscode

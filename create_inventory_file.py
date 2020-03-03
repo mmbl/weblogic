@@ -1,4 +1,6 @@
-"""Формирование файла host"""
+# -*- coding:utf-8 -*-
+
+"""Формирование файла host из файла *.tfstate"""
 
 import pathlib
 import os
