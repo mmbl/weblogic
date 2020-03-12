@@ -30,3 +30,10 @@
     hard_nproc: 16384 
 
 nJShrAgu7mLp
+
+Weblogic server
+# TDOD: настроить несколько пользователь в myrealm для контроля доступа
+1) weblogic / wela@<ip[3]> группа администраторов
+2) dep / dep@<ip[3]> группа развертывания приложений
+2) operator / operator группа операторов
+3) monitor / monitor группа мониторинга

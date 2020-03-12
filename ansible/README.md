@@ -24,3 +24,5 @@
 <http://onreader.mdl.ru/Zabbix4NetworkMonitoring.3rd/content/Ch01.html>
 
 ### GitLab
+
+### Weblogic server
