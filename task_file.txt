@@ -37,3 +37,8 @@ Weblogic server
 2) dep / dep@<ip[3]> группа развертывания приложений
 2) operator / operator группа операторов
 3) monitor / monitor группа мониторинга
+
+# =====RHEL ansible ==========
+sudo yum -y install gcc libffi-devel openssl-devel python-pip python-devel
+sudo pip install --upgrade setuptools
+sudo pip install paramiko PyYAML Jinja2 httplib2 six

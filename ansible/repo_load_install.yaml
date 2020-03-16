@@ -1,0 +1,73 @@
+---
+- name: upload and unstall repository
+  hosts: wls
+  become: no
+
+  vars:
+    user_home_dir: /home/mmbl
+    repo: "{{ user_home_dir }}/repo"
+    _user: mmbl
+    _group: mmbl
+    # связанные параметры, для удобства восприятия
+    # выделен параметр для явного указания JAVA_HOME
+    _files_jdk: "jdk-8u241-linux-x64.tar.gz"
+    _java_version: "1.8.0_241"
+    # =============== #
+    _files_fmw: "fmw_12.1.3.0.0_wls.jar"
+
+    # Для реализации WLS
+    oracle_base: "{{ user_home_dir }}/oracle"
+    JAVA_HOME: "{{ user_home_dir }}/jdk{{ _java_version }}"
+    MW_HOME: "{{ oracle_base }}/middleware1213"
+    WL_HOME: "{{ MW_HOME }}"
+    domains_home: "{{ MW_HOME }}/user_projects/domains"
+  
+  tasks:
+  # Подготовительные работы перед установкой WLS
+  - name: create repository dir
+    file: state=directory path={{ repo }} owner={{ _user }} group={{ _group }}
+    
+  - name: upload repo fmw
+    copy: "src={{ _files_fmw }} dest={{ repo }}"
+  
+  - name: upload repo jdk
+    copy: "src={{ _files_jdk }} dest={{ repo }}"
+  
+  - name: create jdk dir
+    file: state=directory path="{{ JAVA_HOME }}" owner={{ _user }} group={{ _group }}
+  
+  - name: Extract JDK archive
+    unarchive:
+      src: "{{ _files_jdk }}"
+      dest: "{{ JAVA_HOME }}"
+      # опция позволяет явно задать каталог распаковки
+      extra_opts: [--strip-components=1]
+  
+  - name: Change entropy device for java
+    replace:
+      path: "{{ JAVA_HOME }}/jre/lib/security/java.security"
+      regexp: "^securerandom.source=file:/dev/random$"
+      replace: "securerandom.source=file:/dev/urandom"
+
+  - name: Add JAVA_HOME environment variariables in bashrc
+    lineinfile: dest='/home/{{ _user }}/.bashrc' line='export JAVA_HOME={{ JAVA_HOME }}'
+  
+  - name: Add Java bin folder to path in bashrc
+    lineinfile: dest='/home/{{ _user }}/.bashrc' line='export PATH=$PATH:$JAVA_HOME/bin'
+  # wls dirs
+  - name: create oracle dir
+    file: state=directory path="{{ oracle_base }}" owner={{ _user }} group={{ _group }}
+
+  - name: create midleware dir
+    file: state=directory path="{{ MW_HOME }}" owner={{ _user }} group={{ _group }}
+
+  - name: Copy file for silent installation
+    template: src=silent-weblogic.txt dest={{ oracle_base }} owner={{ _user }} group={{ _group }}
+
+  - name: Copy OraInst.loc
+    template: src=oraInst.loc dest={{ oracle_base }} owner={{ _user }} group={{ _group }}
+
+  - name: execute Weblogic installer
+    command: "{{ JAVA_HOME }}/bin/java -Xms1024m -Xmx1024m -jar {{ repo }}/{{ _files_fmw }} -silent -responseFile {{ oracle_base }}/silent-weblogic.txt -invPtrLoc {{ oracle_base }}/oraInst.loc"
+
+  # ========================= #
