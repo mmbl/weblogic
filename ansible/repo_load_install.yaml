@@ -3,24 +3,8 @@
   hosts: wls
   become: no
 
-  vars:
-    user_home_dir: /home/mmbl
-    repo: "{{ user_home_dir }}/repo"
-    _user: mmbl
-    _group: mmbl
-    # связанные параметры, для удобства восприятия
-    # выделен параметр для явного указания JAVA_HOME
-    _files_jdk: "jdk-8u241-linux-x64.tar.gz"
-    _java_version: "1.8.0_241"
-    # =============== #
-    _files_fmw: "fmw_12.1.3.0.0_wls.jar"
-
-    # Для реализации WLS
-    oracle_base: "{{ user_home_dir }}/oracle"
-    JAVA_HOME: "{{ user_home_dir }}/jdk{{ _java_version }}"
-    MW_HOME: "{{ oracle_base }}/middleware1213"
-    WL_HOME: "{{ MW_HOME }}"
-    domains_home: "{{ MW_HOME }}/user_projects/domains"
+  vars_files:
+    - vars.yaml
   
   tasks:
   # Подготовительные работы перед установкой WLS
@@ -47,7 +31,7 @@
     replace:
       path: "{{ JAVA_HOME }}/jre/lib/security/java.security"
       regexp: "^securerandom.source=file:/dev/random$"
-      replace: "securerandom.source=file:/dev/urandom"
+      replace: "securerandom.source=file:/dev/./urandom"
 
   - name: Add JAVA_HOME environment variariables in bashrc
     lineinfile: dest='/home/{{ _user }}/.bashrc' line='export JAVA_HOME={{ JAVA_HOME }}'
@@ -69,5 +53,8 @@
 
   - name: execute Weblogic installer
     command: "{{ JAVA_HOME }}/bin/java -Xms1024m -Xmx1024m -jar {{ repo }}/{{ _files_fmw }} -silent -responseFile {{ oracle_base }}/silent-weblogic.txt -invPtrLoc {{ oracle_base }}/oraInst.loc"
+
+  - name: create domains dir
+    file: state=directory path="{{ domains_home }}" owner={{ _user }} group={{ _group }}
 
   # ========================= #

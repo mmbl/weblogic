@@ -1,0 +1,11 @@
+---
+- name: Create new domain
+  vars_files:
+  - vars.yaml
+
+  tasks:
+  - name: copy create domain python script
+    template: src=create-domain.py dest={{ mw_installer_folder }} owner={{ _user }} group={{ _group }}
+  
+  - name: Execute create domain script
+    shell: "{{ weblogic_home }}/common/bin/wlst.sh {{ mw_installer_folder }}/create-domain.py"

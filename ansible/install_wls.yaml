@@ -1,5 +1,0 @@
----
-- name: preparation of a clean server and deployment WLS
-  hosts: wls
-  vars:
-    user: "{{ user_wls }}"
