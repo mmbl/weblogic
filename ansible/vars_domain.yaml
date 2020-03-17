@@ -1,0 +1,9 @@
+# ====== CREATE DOMAIN ======== # 
+domain_name: 'test_domain'
+# Nodemanager and server settings
+node_manager_listen_port: '5512'
+node_manager_listen_address: 'localhost'
+admin_server_hostname: 'localhost'
+admin_server_port: '7012'
+managed_server_name: 'adfsrv1'
+managed_server_port: '7003'

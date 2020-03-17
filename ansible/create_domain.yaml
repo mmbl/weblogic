@@ -1,11 +1,16 @@
 ---
 - name: Create new domain
+  hosts: wls_master
   vars_files:
   - vars.yaml
+  - vars_domain.yaml
 
-  tasks:
+  tasks:  
   - name: copy create domain python script
     template: src=create-domain.py dest={{ mw_installer_folder }} owner={{ _user }} group={{ _group }}
   
+  - name: copy create domain propirties script
+    template: src=domain.properties dest={{ mw_installer_folder }} owner={{ _user }} group={{ _group }}
+
   - name: Execute create domain script
-    shell: "{{ weblogic_home }}/common/bin/wlst.sh {{ mw_installer_folder }}/create-domain.py"
+    shell: "{{ weblogic_home }}/common/bin/wlst.sh {{ mw_installer_folder }}/create-domain.py -p {{ mw_installer_folder }}/domain.properties"

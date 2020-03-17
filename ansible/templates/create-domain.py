@@ -1,113 +1,81 @@
-# db_server_name = '{{ dbserver_name }}'
-# db_server_port = '{{ dbserver_port }}'      
-# db_service = '{{ dbserver_service }}'
+#!/usr/bin/python
 
-# data_source_url = 'jdbc:oracle:thin:@//' + db_server_name + ':' + db_server_port + '/' + db_service;
-# data_source_user_prefix = '{{ repository_prefix }}'
-# data_source_driver = 'oracle.jdbc.OracleDriver'
-# data_source_test = 'SQL SELECT 1 FROM DUAL';
+import time
+import getopt
+import sys
+import re
 
-java_home = '{{ JAVA_HOME }}'
+# Get location of the properties file.
+properties = ''
+try:
+   opts, args = getopt.getopt(sys.argv[1:],"p:h::",["properies="])
+except getopt.GetoptError:
+   print 'create_domain.py -p <path-to-properties-file>'
+   sys.exit(2)
+for opt, arg in opts:
+   if opt == '-h':
+      print 'create_domain.py -p <path-to-properties-file>'
+      sys.exit()
+   elif opt in ("-p", "--properties"):
+      properties = arg
+print 'properties=', properties
 
-domain_application_home = '{{ applications_home }}/{{ domain_name }}'
-domain_configuration_home = '{{ domains_home }}/{{ domain_name }}'
-domain_name = '{{ domain_name }}'
-middleware_home = '{{ middleware_home }}'
-node_manager_home = '{{ nodemanager_home }}'  
-weblogic_home = '{{ weblogic_home }}'
+# Load the properties from the properties file.
+from java.io import FileInputStream
+ 
+propInputStream = FileInputStream(properties)
+configProps = Properties()
+configProps.load(propInputStream)
 
-weblogic_template = weblogic_home + '/common/templates/wls/wls.jar';
-em_template = middleware_home + '/em/common/templates/wls/oracle.em_wls_template.jar';
+# Set all variables from values in properties file.
+wlsPath=configProps.get("path.wls")
+domainConfigPath=configProps.get("path.domain.config")
+appConfigPath=configProps.get("path.app.config")
+domainName=configProps.get("domain.name")
+username=configProps.get("domain.username")
+password=configProps.get("domain.password")
+adminPort=configProps.get("domain.admin.port")
+adminAddress=configProps.get("domain.admin.address")
+adminPortSSL=configProps.get("domain.admin.port.ssl")
 
-readTemplate(weblogic_template);
-setOption('AppDir', domain_application_home);
-setOption('DomainName', domain_name);
-setOption('OverwriteDomain', 'true');
-setOption('JavaHome', java_home);
-setOption('ServerStartMode', 'prod');
-setOption('NodeManagerType', 'CustomLocationNodeManager');
-setOption('NodeManagerHome', node_manager_home);
+# Display the variable values.
+print 'wlsPath=', wlsPath
+print 'domainConfigPath=', domainConfigPath
+print 'appConfigPath=', appConfigPath
+print 'domainName=', domainName
+print 'username=', username
+print 'password=', password
+print 'adminPort=', adminPort
+print 'adminAddress=', adminAddress
+print 'adminPortSSL=', adminPortSSL
 
-cd('/Security/base_domain/User/weblogic');
-cmo.setName('{{ weblogic_admin }}');
-cmo.setUserPassword('{{ weblogic_admin_pass }}');
-cmo.setPassword('{{ weblogic_admin_pass }}');
+# Load the template. Versions < 12.2
+readTemplate(wlsPath + '/common/templates/domains/wls.jar')
 
-cd('/');
+# Load the template. Versions >= 12.2
+#selectTemplate('Basic WebLogic Server Domain')
+#loadTemplates()
 
-print "SAVE DOMAIN";
-writeDomain(domain_configuration_home);
-closeTemplate();
+# AdminServer settings.
+cd('/Security/base_domain/User/' + username)
+cmo.setPassword(password)
+cd('/Server/AdminServer')
+cmo.setName('AdminServer')
+cmo.setListenPort(int(adminPort))
+cmo.setListenAddress(adminAddress)
 
-print 'READ DOMAIN';
-readDomain(domain_configuration_home);
+# Enable SSL. Attach the keystore later.
+create('AdminServer','SSL')
+cd('SSL/AdminServer')
+set('Enabled', 'True')
+set('ListenPort', int(adminPortSSL))
 
-print 'ADD TEMPLATES';
-#addTemplate(em_template);
-#addTemplate(jrf_template);
-#addTemplate(coherence_template);
-#setOption('AppDir', domain_application_home);
+# If the domain already exists, overwrite the domain
+setOption('OverwriteDomain', 'true')
 
-#connect('{{ weblogic_admin }}','{{ weblogic_admin_pass }}','t3://192.168.56.102:7001')
-#jdbcsystemresources = cmo.getJDBCSystemResources();
-#for jdbcsystemresource in jdbcsystemresources:
-    #cd ('/JDBCSystemResource/' + jdbcsystemresource.getName() + '/JdbcResource/' + jdbcsystemresource.getName() + '/JDBCConnectionPoolParams/NO_NAME_0');
-    #cmo.setInitialCapacity(1);
-    #cmo.setMaxCapacity(15);
-    #cmo.setMinCapacity(1);
-    #cmo.setStatementCacheSize(0);
-    #cmo.setTestConnectionsOnReserve(java.lang.Boolean('false'));
-    #cmo.setTestTableName(data_source_test);
-    #cmo.setConnectionCreationRetryFrequencySeconds(30);
-    #cd ('/JDBCSystemResource/' + jdbcsystemresource.getName() + '/JdbcResource/' + jdbcsystemresource.getName() + '/JDBCDriverParams/NO_NAME_0');
-    #cmo.setUrl(data_source_url);
-    #cmo.setPasswordEncrypted('{{ datasource_password }}');
-   
-    #cd ('/JDBCSystemResource/' + jdbcsystemresource.getName() + '/JdbcResource/' + jdbcsystemresource.getName() + '/JDBCDriverParams/NO_NAME_0/Properties/NO_NAME_0/Property/user');
-    #cmo.setValue(cmo.getValue().replace('DEV',data_source_user_prefix));
+setOption('ServerStartMode','prod')
+setOption('AppDir', appConfigPath + '/' + domainName)
 
-    #cd('/');
-
-jdbcsystemresources = cmo.getJDBCSystemResources()
-for jdbcsystemresource in jdbcsystemresources:
-    cd ('/JDBCSystemResource/' + jdbcsystemresource.getName() + '/JdbcResource/' \
-        + jdbcsystemresource.getName() + '/JDBCConnectionPoolParams/NO_NAME_0')
-    cmo.setInitialCapacity(1)
-    cmo.setMaxCapacity(15)
-    cmo.setMinCapacity(1)
-    cmo.setStatementCacheSize(0)
-    cmo.setTestConnectionsOnReserve(java.lang.Boolean('false'))
-    cmo.setTestTableName(data_source_test)
-    cmo.setConnectionCreationRetryFrequencySeconds(30)
-    cd ('/JDBCSystemResource/' + jdbcsystemresource.getName() + '/JdbcResource/' \
-        + jdbcsystemresource.getName() + '/JDBCDriverParams/NO_NAME_0')
-    cmo.setUrl(data_source_url)
-    cmo.setPasswordEncrypted(data_source_password)
-    cd ('/JDBCSystemResource/' + jdbcsystemresource.getName() + '/JdbcResource/' \
-        + jdbcsystemresource.getName() + '/JDBCDriverParams/NO_NAME_0/Properties/NO_NAME_0/Property/user')
-    cmo.setValue(cmo.getValue().replace('DEV', data_source_user_prefix))
-
-cd('/')
-
-cd("/SecurityConfiguration/" + domain_name);
-cmo.setNodeManagerUsername('{{ nodemanager_username }}');
-cmo.setNodeManagerPasswordEncrypted('{{ nodemanager_password }}');
-
-cd('/Server/' + '{{ admin_server_name }}');
-#set('Enabled', 'True');
-set('ListenPort', 7001);
-create('{{ admin_server_name }}','SSL');
-
-cd('SSL/' + '{{ admin_server_name }}');
-cmo.setHostnameVerificationIgnored(true);
-cmo.setHostnameVerifier(None);
-cmo.setTwoWaySSLEnabled(false);
-cmo.setClientCertificateEnforced(false);
-
-cd('/SecurityConfiguration/'+ domain_name +'/Realms/myrealm');
-cd('AuthenticationProviders/DefaultAuthenticator');
-set('ControlFlag', 'SUFFICIENT');
-cd('../../');
-
-#updateDomain();
-closeDomain();
+writeDomain(domainConfigPath + '/' + domainName)
+closeTemplate()
+exit()
