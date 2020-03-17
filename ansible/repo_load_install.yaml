@@ -1,6 +1,6 @@
 ---
 - name: upload and unstall repository
-  hosts: wls
+  hosts: master
   become: no
 
   vars_files:
@@ -53,7 +53,10 @@
 
   - name: execute Weblogic installer
     command: "{{ JAVA_HOME }}/bin/java -Xms1024m -Xmx1024m -jar {{ repo }}/{{ _files_fmw }} -silent -responseFile {{ oracle_base }}/silent-weblogic.txt -invPtrLoc {{ oracle_base }}/oraInst.loc"
-
+  
+  # выполнить только после развёртывания WLS иначе может приводить к ошибке - 
+  # "Validation of Oracle Home location failed"
+  # TODO: исследование на тему зависимых задач
   - name: create domains dir
     file: state=directory path="{{ domains_home }}" owner={{ _user }} group={{ _group }}
 
