@@ -1,7 +1,7 @@
 if __name__ == '__main__':  
     from wlstModule import *  
   
-connect('weblogic', 'weblogic1', 't3://{{ LISTEN_IP }}:7001')  
+connect('weblogic', 'wela@138', 't3://{{ LISTEN_IP }}:{{ LISTEN_PORT }}')  
 
 #start up an edit session  
 edit()  
@@ -9,15 +9,17 @@ startEdit()
 #change to the root  
 cd('/')  
  
-myMachine = cmo.createUnixMachine("machine-0")  
+myMachine = cmo.createUnixMachine("unixmachine_0")  
   
 myMachine.getNodeManager().setNMType('plain')  
-myMachine.getNodeManager().setListenAddress('{{ LISTEN_IP }}') 
+myMachine.getNodeManager().setListenAddress('{{ LISTEN_IP }}')
+myMachine.getNodeManager().setListenPort({{ NODE_NAN_LISTEN }})
 
-myMachine = cmo.createUnixMachine("machine-1")  
+myMachine = cmo.createUnixMachine("unixmachine_1")  
   
 myMachine.getNodeManager().setNMType('plain')  
-myMachine.getNodeManager().setListenAddress('{{ SLAVE_LISTEN_IP }}') 
+myMachine.getNodeManager().setListenAddress('{{ SLAVE_LISTEN_IP }}')
+myMachine.getNodeManager().setListenPort({{ NODE_NAN_LISTEN }})
 
 save()  
 activate(block="true")  

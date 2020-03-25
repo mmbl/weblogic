@@ -1,6 +1,6 @@
 ---
 - name: Create new domain
-  hosts: wls_master
+  hosts: fpl_master
   vars_files:
   - vars.yaml
 

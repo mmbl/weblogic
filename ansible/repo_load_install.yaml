@@ -1,6 +1,6 @@
 ---
 - name: upload and unstall repository
-  hosts: master
+  hosts: wls
   become: no
 
   vars_files:
