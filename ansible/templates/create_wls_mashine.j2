@@ -1,0 +1,27 @@
+if __name__ == '__main__':  
+    from wlstModule import *  
+  
+connect('weblogic', 'weblogic1', 't3://{{ LISTEN_IP }}:7001')  
+
+#start up an edit session  
+edit()  
+startEdit()  
+#change to the root  
+cd('/')  
+ 
+myMachine = cmo.createUnixMachine("machine-0")  
+  
+myMachine.getNodeManager().setNMType('plain')  
+myMachine.getNodeManager().setListenAddress('{{ LISTEN_IP }}') 
+
+myMachine = cmo.createUnixMachine("machine-1")  
+  
+myMachine.getNodeManager().setNMType('plain')  
+myMachine.getNodeManager().setListenAddress('{{ SLAVE_LISTEN_IP }}') 
+
+save()  
+activate(block="true")  
+
+print 'Done'  
+
+exit()  

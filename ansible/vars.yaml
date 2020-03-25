@@ -17,3 +17,13 @@ weblogic_home: '{{ MW_HOME }}/wlserver'
 mw_installer_folder: '{{ MW_HOME }}/install'
 domains_home: "{{ MW_HOME }}/user_projects/domains"
 # ====================== #
+# параметры домена
+DOMAIN_NAME: 'test_domain'
+DOMAIN_USER: 'weblogic'
+DOMAIN_USER_PSWD: 'weblogic1'
+NODE_MAN_USER: 'nmadmin'
+NODE_MAN_USER_PSWD: 'nmadmin12345'
+SERVER_NAME: 'AdminServer'
+LISTEN_PORT: 7001
+LISTEN_IP: '10.132.0.28'
+SLAVE_LISTEN_IP: '10.132.0.28'
