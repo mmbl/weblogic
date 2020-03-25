@@ -1,16 +1,19 @@
 ---
 - name: Create new domain
-  hosts: wls_master
+  hosts: wls_slave
   vars_files:
   - vars.yaml
-  - vars_domain.yaml
 
   tasks:  
-  - name: copy create domain python script
-    template: src=create-domain.py dest={{ mw_installer_folder }} owner={{ _user }} group={{ _group }}
-  
-  - name: copy create domain propirties script
-    template: src=domain.properties dest={{ mw_installer_folder }} owner={{ _user }} group={{ _group }}
+  - name: Copy create domain python script
+    template: src=create_wls_domain.j2 dest='{{ mw_installer_folder }}/create_domain.py' owner='{{ _user }}' group='{{ _group }}'
 
   - name: Execute create domain script
-    shell: "{{ weblogic_home }}/common/bin/wlst.sh {{ mw_installer_folder }}/create-domain.py -p {{ mw_installer_folder }}/domain.properties"
+    shell: '{{ weblogic_home }}/common/bin/wlst.sh {{ mw_installer_folder }}/create_domain.py'
+  
+  - name: Create security dir
+    file: state=directory path="{{ domains_home }}/{{ DOMAIN_NAME }}/servers/{{ SERVER_NAME }}/security" owner={{ _user }} group={{ _group }}
+
+  - name: Create boot properties
+    template: src=boot.properties.j2 dest='{{ domains_home }}/{{ DOMAIN_NAME }}/servers/{{ SERVER_NAME }}/security/boot.properties' owner='{{ _user }}' group='{{ _group }}'
+    

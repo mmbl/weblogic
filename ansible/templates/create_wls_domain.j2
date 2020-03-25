@@ -1,0 +1,39 @@
+if __name__ == '__main__':  
+    from wlstModule import *  
+
+readTemplate("{{ weblogic_home }}/common/templates/wls/wls.jar")  
+
+cd('Servers/AdminServer')  
+set('ListenAddress', '{{ LISTEN_IP }}')  
+set('ListenPort', {{ LISTEN_PORT }} )  
+
+create('AdminServer', 'SSL')  
+cd('SSL/AdminServer')  
+set('Enabled', 'false')  
+set('ListenPort', 7002)  
+  
+cd('/')  
+cd('Security/base_domain/User/weblogic')  
+cmo.setName('{{ DOMAIN_USER }}')
+cmo.setUserPassword('{{ DOMAIN_USER_PSWD }}')
+cmo.setPassword('{{ DOMAIN_USER_PSWD }}')
+
+cd('/')  
+cd('NMProperties')  
+set('SecureListener', 'false')  
+set('ListenAddress', '{{ LISTEN_IP }}')  
+set('CrashRecoveryEnabled', 'true')  
+
+setOption('OverwriteDomain', 'true')  
+setOption('ServerStartMode', 'prod')  
+writeDomain('{{ domains_home }}/{{ DOMAIN_NAME }}')
+closeTemplate()
+
+readDomain('{{ domains_home }}/{{ DOMAIN_NAME }}')
+cd('/')
+cd('/SecurityConfiguration/{{ DOMAIN_NAME }}')
+cmo.setNodeManagerUsername('{{ NODE_MAN_USER }}')
+cmo.setNodeManagerPasswordEncrypted('{{ NODE_MAN_USER_PSWD }}')
+cd('/')
+save()
+exit() 

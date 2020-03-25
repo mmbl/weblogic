@@ -7,6 +7,12 @@
 #TODO: https://www.middlewareinventory.com/blog/snmp-monitoring-in-weblogic-step-by-step-example/
 #TODO: https://www.middlewareinventory.com/blog/weblogic-server-status-script-wlst/
 #TODO: https://habr.com/ru/post/137641/
+#TODO: https://habr.com/ru/company/oleg-bunin/blog/358520/
+#TODO: https://habr.com/ru/company/zabbix/blog/342226/
+#TODO: https://sath.com/weblogic-monitoring-zabbix-jmx/
+#TODO: http://brunocarvalho.net/blog/2016/06/16/monitorando-weblogic-em-domainruntime-com-zabbix/
+#TODO: https://programming.vip/docs/zabbix4.0-monitors-multi-instance-java-runs-through-jmx.html
+#TODO: https://jolokia.org/
 
 #TODO: Разобратся со значениями параметров, откуда и как каждый назначается
  
